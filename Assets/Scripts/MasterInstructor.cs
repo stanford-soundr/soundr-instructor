@@ -39,6 +39,8 @@ public class MasterInstructor: MonoBehaviour
     public Transform Guider;
     public Transform HeadGuider;
     public TextMeshProUGUI GuiderText;
+    public TextMeshProUGUI MessageText;
+    public ConeManager ConeManager;
 
     public int UserId;
     public int TrialId;
@@ -113,13 +115,21 @@ public class MasterInstructor: MonoBehaviour
                 break;
             case InstructorState.CreateGround:
                 Ground = Instantiate(GroundTemplate, transform);
+                MessageText.text =
+                    "Please use the controller ring to touch the ground and click A or X on the controller.";
                 break;
             case InstructorState.CreateWall:
                 Wall = Instantiate(VerticalWallTemplate, transform);
+                MessageText.text =
+                    "Please use both controllers to create the wall for the microphone " +
+                    "and click A or X on the controller.";
                 break;
             case InstructorState.CreateMicrophone:
                 var rotation = RotationFromWallParam();
                 Microphone = Instantiate(MicrophoneTemplate, Vector3.zero, rotation, transform).transform;
+                MessageText.text =
+                    "Please use the right controller ring to touch the position of the microphone " +
+                    "and click A or X on the controller.";
                 break;
             case InstructorState.CreateWidth:
                 Ground.transform.position = Vector3.zero;
@@ -131,8 +141,11 @@ public class MasterInstructor: MonoBehaviour
             case InstructorState.CreateDepth:
                 break;
             case InstructorState.MeasureHeight:
+                MessageText.text =
+                    "Measuring you height... Please stand up right and keep still.";
                 break;
             case InstructorState.DoExperiment:
+                MessageText.text = "";
                 var roomSetting = new ExperimentManager.Setting
                 {
                     RoomWidth = RoomSize.x,
@@ -209,6 +222,7 @@ public class MasterInstructor: MonoBehaviour
         var maxAnchorX = anchorX[0] > anchorX[1] ? anchorX[0] : anchorX[1];
         var snappedMaxAnchorX = SnapToGrid(maxAnchorX);
         RoomSize.x = snappedMaxAnchorX * 2;
+        MessageText.text = $"Room width: {RoomSize.x}m";
     }
 
     private void UpdateRoomDepth()
@@ -219,6 +233,7 @@ public class MasterInstructor: MonoBehaviour
         var maxAnchorZ = anchorZ[0] > anchorZ[1] ? anchorZ[0] : anchorZ[1];
         var snappedMaxAnchorZ = SnapToGrid(maxAnchorZ);
         RoomSize.y = snappedMaxAnchorZ;
+        MessageText.text = $"Room depth: {RoomSize.y}m";
     }
 
     private void UpdateWallsPosition()
@@ -319,6 +334,18 @@ public class MasterInstructor: MonoBehaviour
                 }
                 break;
             case InstructorState.DoExperiment:
+                if (ConeManager.PositionalValue > 0.5)
+                {
+                    MessageText.text = "Please move your head closer to the start of the cone.";
+                }
+                else if (ConeManager.RotationalValue > 0.5)
+                {
+                    MessageText.text = "Please rotate your head closer to align with the cone.";
+                }
+                else
+                {
+                    MessageText.text = "";
+                }
                 if (OVRInput.GetUp(OVRInput.RawButton.A) || OVRInput.GetUp(OVRInput.RawButton.X))
                 {
                     ExperimentCount += 1;

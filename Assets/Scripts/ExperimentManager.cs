@@ -30,14 +30,17 @@ public class ExperimentManager: MonoBehaviour
     private const int DepthBracketCount = 8;
     private const int DirectionCount = 4;
 
+    private const float WidthClearance = 0.5f;
+    private const float DepthClearance = 0.5f;
+
     public void GenerateExperiment(Setting setting)
     {
         Random.InitState(setting.TrialId * 100 + setting.UserId);
         _setting = setting;
         
-        var widthBracketSize = _setting.RoomWidth / WidthBracketCount;
-        var depthBracketSize = _setting.RoomDepth / DepthBracketCount;
-        var directionBracketSize = 360f / DirectionCount;
+        var widthBracketSize = (_setting.RoomWidth - WidthClearance) / WidthBracketCount;
+        var depthBracketSize = (_setting.RoomDepth - DepthClearance) / DepthBracketCount;
+        const float directionBracketSize = 360f / DirectionCount;
 
         var steps = new List<Step>();
         for (var widthBracket = 0; widthBracket < WidthBracketCount; widthBracket++)
@@ -50,8 +53,8 @@ public class ExperimentManager: MonoBehaviour
                 {
                     var directionBracketStart = directionBracketSize * directionBracket;
                     
-                    var x = widthBracketStart + widthBracketSize * Random.value;
-                    var z = depthBracketStart + depthBracketSize * Random.value;
+                    var x = widthBracketStart + widthBracketSize * Random.value + WidthClearance / 2f;
+                    var z = depthBracketStart + depthBracketSize * Random.value + DepthClearance / 2f;
                     var y = _setting.PersonHeight - 0.05f;
                     var position = new Vector3(x, y, z);
 
@@ -67,6 +70,18 @@ public class ExperimentManager: MonoBehaviour
             }
         }
 
-        Steps = steps.ToArray();
+        var rearrangedSteps = new List<Step>();
+
+        const int fold = 4;
+
+        for (var i = 0; i < fold; i++)
+        {
+            for (var j = i; j < steps.Count; j += fold)
+            {
+                rearrangedSteps.Add(steps[j]);
+            }
+        }
+
+        Steps = rearrangedSteps.ToArray();
     }
 }
