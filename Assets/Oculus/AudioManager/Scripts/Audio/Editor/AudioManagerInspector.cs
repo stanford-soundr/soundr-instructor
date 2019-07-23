@@ -132,7 +132,7 @@ public class AudioManagerInspector : Editor {
 			EditorGUILayout.PropertyField( soundGroup.FindPropertyRelative( "preloadAudio" ), new GUIContent( "Preload Audio Clips", "Default = No special preloading, Preload = Audio clips are set to 'Preload', Manual Preload = Audio clips are set to not 'Preload'" ) );
 			EditorGUILayout.PropertyField( soundGroup.FindPropertyRelative( "volumeOverride" ), new GUIContent( "Volume Override", "All sounds played in this group will have volume scaled by this amount" ) );
 			if ( soundGroup.FindPropertyRelative( "volumeOverride" ).floatValue == 0.0f ) {
-				EditorGUILayout.HelpBox( "With a volumeOverride of 0.0, these sounds will not play!", MessageType.Warning );
+				EditorGUILayout.HelpBox( "With a volumeOverride of 0.0, these sounds will not play!", UnityEditor.MessageType.Warning );
 			}
 			EditorGUILayout.EndVertical();
 			serializedObject.ApplyModifiedProperties();
@@ -314,7 +314,7 @@ public class AudioManagerInspector : Editor {
 
 		EndContents();
 
-		EditorGUILayout.HelpBox("Create and delete sound groups by clicking + and - respectively.  Double click to rename sound groups.  Drag and drop sounds from below to the groups above to move them.", MessageType.Info);
+		EditorGUILayout.HelpBox("Create and delete sound groups by clicking + and - respectively.  Double click to rename sound groups.  Drag and drop sounds from below to the groups above to move them.", UnityEditor.MessageType.Info);
 
 	}
 

@@ -14,6 +14,7 @@ public enum InstructorState
     CreateWidth,
     CreateDepth,
     MeasureHeight,
+    WaitParameters,
     DoExperiment,
     End
 }
@@ -41,6 +42,8 @@ public class MasterInstructor: MonoBehaviour
     public TextMeshProUGUI GuiderText;
     public TextMeshProUGUI MessageText;
     public ConeManager ConeManager;
+    public DataRecorder DataRecorder;
+    public InstructorServer InstructorServer;
 
     public int UserId;
     public int TrialId;
@@ -72,6 +75,8 @@ public class MasterInstructor: MonoBehaviour
     public Vector3 MicrophonePosition;
     public Transform Microphone;
 
+    public Transform OriginAnchor;
+
     public Vector2 RoomSize;
     public VerticalGridGenerator LeftWall;
     public VerticalGridGenerator RightWall;
@@ -90,12 +95,17 @@ public class MasterInstructor: MonoBehaviour
             case InstructorState.CreateWall:
                 break;
             case InstructorState.CreateMicrophone:
+                var microphonePosition = Microphone.position;
+                OriginAnchor.position = microphonePosition + Vector3.up * (GroundParam - microphonePosition.y);
+                OriginAnchor.rotation = Microphone.rotation;
                 break;
             case InstructorState.CreateWidth:
                 break;
             case InstructorState.CreateDepth:
                 break;
             case InstructorState.MeasureHeight:
+                break;
+            case InstructorState.WaitParameters:
                 break;
             case InstructorState.DoExperiment:
                 break;
@@ -144,6 +154,9 @@ public class MasterInstructor: MonoBehaviour
                 MessageText.text =
                     "Measuring you height... Please stand up right and keep still.";
                 break;
+            case InstructorState.WaitParameters:
+                MessageText.text = "Waiting for experimenter...";
+                break;
             case InstructorState.DoExperiment:
                 MessageText.text = "";
                 var roomSetting = new ExperimentManager.Setting
@@ -156,6 +169,7 @@ public class MasterInstructor: MonoBehaviour
                 };
                 ExperimentManager.GenerateExperiment(roomSetting);
                 LoadExperiment();
+                DataRecorder.StartRecording();
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(startingState), startingState, null);
@@ -217,7 +231,7 @@ public class MasterInstructor: MonoBehaviour
     private void UpdateRoomWidth()
     {
         var anchorPositions = new[] {LeftControllerAnchor.position, RightControllerAnchor.position};
-        var anchorMicrophonePositions = anchorPositions.Select(pos => Microphone.InverseTransformPoint(pos));
+        var anchorMicrophonePositions = anchorPositions.Select(pos => OriginAnchor.InverseTransformPoint(pos));
         var anchorX = anchorMicrophonePositions.Select(pos => Mathf.Abs(pos.x)).ToArray();
         var maxAnchorX = anchorX[0] > anchorX[1] ? anchorX[0] : anchorX[1];
         var snappedMaxAnchorX = SnapToGrid(maxAnchorX);
@@ -228,7 +242,7 @@ public class MasterInstructor: MonoBehaviour
     private void UpdateRoomDepth()
     {
         var anchorPositions = new[] {LeftControllerAnchor.position, RightControllerAnchor.position};
-        var anchorMicrophonePositions = anchorPositions.Select(pos => Microphone.InverseTransformPoint(pos));
+        var anchorMicrophonePositions = anchorPositions.Select(pos => OriginAnchor.InverseTransformPoint(pos));
         var anchorZ = anchorMicrophonePositions.Select(pos => Mathf.Abs(pos.z)).ToArray();
         var maxAnchorZ = anchorZ[0] > anchorZ[1] ? anchorZ[0] : anchorZ[1];
         var snappedMaxAnchorZ = SnapToGrid(maxAnchorZ);
@@ -249,8 +263,7 @@ public class MasterInstructor: MonoBehaviour
             new Vector3(RoomSize.x / 2, 0, RoomSize.y),
             new Vector3(-RoomSize.x / 2, 0, RoomSize.y),
         };
-        var positions = rawPositions.Select(pos => Microphone.TransformPoint(pos) +
-                                                   Vector3.up * (GroundParam - Microphone.position.y)).ToArray();
+        var positions = rawPositions.Select(pos => OriginAnchor.TransformPoint(pos)).ToArray();
         Wall.Vertices[0] = positions[0];
         Wall.Vertices[3] = positions[5];
         RightWall.Vertices[0] = positions[1];
@@ -270,8 +283,8 @@ public class MasterInstructor: MonoBehaviour
         HeadGuider.gameObject.SetActive(true);
         var experimentStep = ExperimentManager.Steps[ExperimentCount];
 
-        Guider.position = Microphone.TransformPoint(experimentStep.Position) + Vector3.up * (GroundParam - Microphone.position.y);
-        Guider.rotation = Microphone.rotation * experimentStep.Direction;
+        Guider.position = OriginAnchor.TransformPoint(experimentStep.Position);
+        Guider.rotation = OriginAnchor.rotation * experimentStep.Direction;
         GuiderText.text = experimentStep.Text;
     }
         
@@ -330,8 +343,10 @@ public class MasterInstructor: MonoBehaviour
                 PersonHeightParam = HeadsetAnchor.position.y - GroundParam;
                 if (OVRInput.GetUp(OVRInput.RawButton.A) || OVRInput.GetUp(OVRInput.RawButton.X))
                 {
-                    State = InstructorState.DoExperiment;
+                    State = InstructorState.WaitParameters;
                 }
+                break;
+            case InstructorState.WaitParameters:
                 break;
             case InstructorState.DoExperiment:
                 if (ConeManager.PositionalValue > 0.5)
@@ -357,6 +372,40 @@ public class MasterInstructor: MonoBehaviour
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
+        }
+    }
+
+    public void HandleCommand(DecodedMessage decodedMessage)
+    {
+        switch (decodedMessage.MessageType)
+        {
+            case MessageType.Parameter:
+                if (State == InstructorState.WaitParameters)
+                {
+                    State = InstructorState.DoExperiment;
+                    var content = (ParameterContent) decodedMessage.Content;
+                    UserId = content.UserId;
+                    TrialId = content.TrialId;
+                    InstructorServer.SendMessageToClient(DecodedMessage.AcknowledgeMessage());
+                }
+                else
+                {
+                    InstructorServer.SendMessageToClient(DecodedMessage.ErrorMessage(MessageError.NotReadyError));
+                }
+                break;
+            case MessageType.Stop:
+                if (State == InstructorState.DoExperiment)
+                {
+                    State = InstructorState.WaitParameters;
+//                    var content = (StopContent) message.Content;
+                    DataRecorder.StopRecording();
+                    InstructorServer.SendMessageToClient(DecodedMessage.AcknowledgeMessage());
+                }
+                else
+                {
+                    InstructorServer.SendMessageToClient(DecodedMessage.ErrorMessage(MessageError.NotReadyError));
+                }
+                break;
         }
     }
 }

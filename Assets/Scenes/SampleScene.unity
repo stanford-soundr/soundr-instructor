@@ -120,6 +120,36 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &13338963
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 13338964}
+  m_Layer: 0
+  m_Name: OriginAnchor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &13338964
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 13338963}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &341943799
 GameObject:
   m_ObjectHideFlags: 0
@@ -179,7 +209,7 @@ Transform:
   m_Children:
   - {fileID: 600168756}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &447037968
 GameObject:
@@ -1177,7 +1207,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1004358944
 PrefabInstance:
@@ -1402,6 +1432,8 @@ GameObject:
   - component: {fileID: 1952483747}
   - component: {fileID: 1952483748}
   - component: {fileID: 1952483749}
+  - component: {fileID: 1952483751}
+  - component: {fileID: 1952483750}
   m_Layer: 0
   m_Name: MasterInstructor
   m_TagString: Untagged
@@ -1421,7 +1453,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1952483748
 MonoBehaviour:
@@ -1451,6 +1483,8 @@ MonoBehaviour:
   GuiderText: {fileID: 1985368666}
   MessageText: {fileID: 581068331}
   ConeManager: {fileID: 600168760}
+  DataRecorder: {fileID: 1952483750}
+  InstructorServer: {fileID: 1952483751}
   UserId: 0
   TrialId: 0
   _state: 0
@@ -1463,6 +1497,7 @@ MonoBehaviour:
   Wall: {fileID: 0}
   MicrophonePosition: {x: 0, y: 0, z: 0}
   Microphone: {fileID: 0}
+  OriginAnchor: {fileID: 13338964}
   RoomSize: {x: 0, y: 0}
   LeftWall: {fileID: 0}
   RightWall: {fileID: 0}
@@ -1481,6 +1516,41 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Steps: []
+--- !u!114 &1952483750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1952483746}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f43d0f8a46b94a628dbff2352c7d5ab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Recording: 0
+  HistoryTimestamps: []
+  HistoryPositions: []
+  HistoryQuaternions: []
+  CurrentTimestamp: 0
+  CurrentPosition: {x: 0, y: 0, z: 0}
+  CurrentQuaternion: {x: 0, y: 0, z: 0, w: 0}
+  MicrophoneClip: {fileID: 0}
+  LastPosition: 0
+  MasterInstructor: {fileID: 1952483748}
+--- !u!114 &1952483751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1952483746}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 430368f1d6102da43b7f1e123b2de696, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MasterInstructor: {fileID: 1952483748}
 --- !u!1 &1985368664
 GameObject:
   m_ObjectHideFlags: 0
