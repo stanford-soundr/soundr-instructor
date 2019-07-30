@@ -57,6 +57,7 @@ public class DataRecorder: MonoBehaviour
         if (positionDiff < 0)
         {
             positionDiff += MicrophoneClip.samples;
+            // ReSharper disable once Unity.PerformanceCriticalCodeInvocation
             Debug.Log("Clip overwritten!");
         }
         if (positionDiff > 0)
@@ -76,7 +77,7 @@ public class DataRecorder: MonoBehaviour
     public void StopRecording()
     {
         Recording = false;
-        Microphone.End(null);
         SendData();
+        Microphone.End(null);
     }
 }

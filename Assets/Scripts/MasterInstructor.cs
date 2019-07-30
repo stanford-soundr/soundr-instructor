@@ -38,6 +38,7 @@ public class MasterInstructor: MonoBehaviour
     public Transform HeadsetAnchor;
     public ExperimentManager ExperimentManager;
     public Transform Guider;
+    public Transform GuiderRotator;
     public Transform HeadGuider;
     public TextMeshProUGUI GuiderText;
     public TextMeshProUGUI MessageText;
@@ -284,7 +285,7 @@ public class MasterInstructor: MonoBehaviour
         var experimentStep = ExperimentManager.Steps[ExperimentCount];
 
         Guider.position = OriginAnchor.TransformPoint(experimentStep.Position);
-        Guider.rotation = OriginAnchor.rotation * experimentStep.Direction;
+        GuiderRotator.rotation = OriginAnchor.rotation * experimentStep.Direction;
         GuiderText.text = experimentStep.Text;
     }
         
@@ -383,9 +384,9 @@ public class MasterInstructor: MonoBehaviour
                 if (State == InstructorState.WaitParameters)
                 {
                     State = InstructorState.DoExperiment;
-                    var content = (ParameterContent) decodedMessage.Content;
-                    UserId = content.UserId;
-                    TrialId = content.TrialId;
+                    var parameterContent = (ParameterContent) decodedMessage.Content;
+                    UserId = parameterContent.UserId;
+                    TrialId = parameterContent.TrialId;
                     InstructorServer.SendMessageToClient(DecodedMessage.AcknowledgeMessage());
                 }
                 else
@@ -394,16 +395,19 @@ public class MasterInstructor: MonoBehaviour
                 }
                 break;
             case MessageType.Stop:
+                var stopContent = (StopContent) decodedMessage.Content;
                 if (State == InstructorState.DoExperiment)
                 {
                     State = InstructorState.WaitParameters;
-//                    var content = (StopContent) message.Content;
                     DataRecorder.StopRecording();
                     InstructorServer.SendMessageToClient(DecodedMessage.AcknowledgeMessage());
                 }
                 else
                 {
-                    InstructorServer.SendMessageToClient(DecodedMessage.ErrorMessage(MessageError.NotReadyError));
+                    if (!stopContent.Internal)
+                    {
+                        InstructorServer.SendMessageToClient(DecodedMessage.ErrorMessage(MessageError.NotReadyError));
+                    }
                 }
                 break;
         }

@@ -11,13 +11,14 @@ public class ConeManager: MonoBehaviour
     public float PositionalDistance;
     public float RotationalDistance;
 
-    public float TotalDistance;
     private static readonly int Color = Shader.PropertyToID("_GridColor");
     
     public float PositionalValue;
     public float RotationalValue;
 
     public TextMeshProUGUI ReadingText;
+
+    public LineRenderer GuideLine;
 
     private void Start()
     {
@@ -26,16 +27,26 @@ public class ConeManager: MonoBehaviour
 
     private void Update()
     {
-        var positionalDifference = (transform.position - HeadTransform.position);
+        var headPosition = HeadTransform.position;
+        var headRotation = HeadTransform.rotation;
+
+        var position = transform.position;
+        var positionalDifference = (position - headPosition);
         positionalDifference.y = 0;
         PositionalDistance = positionalDifference.magnitude;
-        (transform.rotation * Quaternion.Inverse(HeadTransform.rotation)).ToAngleAxis(out var angle, out _);
+        (transform.rotation * Quaternion.Inverse(headRotation)).ToAngleAxis(out var angle, out _);
         RotationalDistance = Mathf.Min(angle, 360 - angle) / 10;
 
         PositionalValue = PositionalDistance * 5f;
         RotationalValue = Mathf.Clamp01(Mathf.Pow(RotationalDistance, 10));
-        ReadingText.enabled = PositionalValue < 0.5 && RotationalValue < 0.5;
+        var closeEnough = PositionalValue < 0.5 && RotationalValue < 0.5;
         var totalValue = (PositionalValue + RotationalValue) / 2;
+        
+        ReadingText.enabled = closeEnough;
+        GuideLine.positionCount = 2;
+        GuideLine.SetPosition(0, headPosition + headRotation * (0.2f * Vector3.forward));
+        GuideLine.SetPosition(1, position);
+        GuideLine.enabled = !closeEnough;
         
         var colorR = totalValue;
         var colorG = PositionalValue;

@@ -156,6 +156,16 @@ public class DecodedMessage
         };
         return new DecodedMessage {MessageType = messageType, Content = content};
     }
+
+    public static DecodedMessage StopMessage(double timestamp)
+    {
+        const MessageType messageType = MessageType.Stop;
+        var content = new StopContent
+        {
+            Timestamp = timestamp
+        };
+        return new DecodedMessage {MessageType = messageType, Content = content};
+    }
 }
 
 public class ParameterContent
@@ -186,6 +196,7 @@ public class AudioDataContent
 public class StopContent
 {
     public double Timestamp;
+    public bool Internal => Timestamp < 0;
 }
 
 public enum MessageError
