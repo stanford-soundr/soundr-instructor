@@ -41,7 +41,7 @@ public class ExperimentManager: MonoBehaviour
             var tmp = array[i];
             var r = Random.Range(i, array.Length);
             array[i] = array[r];
-            array[i] = tmp;
+            array[r] = tmp;
         }
     }
 

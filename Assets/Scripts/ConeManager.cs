@@ -30,7 +30,12 @@ public class ConeManager: MonoBehaviour
         var headPosition = HeadTransform.position;
         var headRotation = HeadTransform.rotation;
 
+        // ReSharper disable once LocalVariableHidesMember
+        var transform = this.transform;
         var position = transform.position;
+        position.y = headPosition.y;
+        transform.position = position;
+        
         var positionalDifference = (position - headPosition);
         positionalDifference.y = 0;
         PositionalDistance = positionalDifference.magnitude;
