@@ -77,10 +77,12 @@ public class ExperimentManager: MonoBehaviour
                     var rX = -60 + 120 * Random.value;
                     const float rZ = 0f;
                     var direction = Quaternion.Euler(rX, rY, rZ);
-
-                    var text = ReadText.Scripts[Random.Range(0, ReadText.Scripts.Length)];
                     
-                    steps.Add(new Step{Position = position, Direction = direction, Text = text});
+                    steps.Add(new Step{
+                        Position = position, 
+                        Direction = direction, 
+                        Text = ""
+                    });
                 }
             }
         }
@@ -93,7 +95,28 @@ public class ExperimentManager: MonoBehaviour
         {
             for (var j = i; j < steps.Count; j += fold)
             {
-                rearrangedSteps.Add(steps[j]);
+                var position = steps[j].Position;
+                var direction = steps[j].Direction;
+                rearrangedSteps.Add(new Step{
+                    Position = position, 
+                    Direction = direction, 
+                    Text = ReadText.Scripts[Random.Range(0, ReadText.Scripts.Length)]
+                });
+                rearrangedSteps.Add(new Step{
+                    Position = position, 
+                    Direction = direction, 
+                    Text = ReadText.Scripts[Random.Range(0, ReadText.Scripts.Length)]
+                });
+                rearrangedSteps.Add(new Step{
+                    Position = position, 
+                    Direction = direction, 
+                    Text = ReadText.Scripts[Random.Range(0, ReadText.Scripts.Length)]
+                });
+                rearrangedSteps.Add(new Step{
+                    Position = position, 
+                    Direction = direction, 
+                    Text = ReadText.Scripts[Random.Range(0, ReadText.Scripts.Length)]
+                });
             }
         }
 
