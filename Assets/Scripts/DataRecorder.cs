@@ -21,8 +21,8 @@ public class DataRecorder: MonoBehaviour
     public void StartRecording()
     {
         Recording = true;
-        MicrophoneClip = Microphone.Start(null, true, 100, 48000);
-        while(Microphone.GetPosition(null) < 0) {}
+//        MicrophoneClip = Microphone.Start(null, true, 100, 48000);
+//        while(Microphone.GetPosition(null) < 0) {}
         LastPosition = 0;
         HistoryTimestamps.Clear();
         HistoryPositions.Clear();
@@ -52,22 +52,22 @@ public class DataRecorder: MonoBehaviour
             HistoryTimestamps.ToArray(),
             HistoryPositions.ToArray(),
             HistoryQuaternions.ToArray());
-        var newPosition = Microphone.GetPosition(null);
-        var positionDiff = newPosition - LastPosition;
-        if (positionDiff < 0)
-        {
-            positionDiff += MicrophoneClip.samples;
-            // ReSharper disable once Unity.PerformanceCriticalCodeInvocation
-            Debug.Log("Clip overwritten!");
-        }
-        if (positionDiff > 0)
-        {
-            var samples = new float[positionDiff * MicrophoneClip.channels];
-            MicrophoneClip.GetData(samples, LastPosition);
-            var audioMessage = DecodedMessage.AudioDataMessage(samples);
-            MasterInstructor.InstructorServer.SendMessageToClient(audioMessage);
-        }
-        LastPosition = newPosition;
+//        var newPosition = Microphone.GetPosition(null);
+//        var positionDiff = newPosition - LastPosition;
+//        if (positionDiff < 0)
+//        {
+//            positionDiff += MicrophoneClip.samples;
+//            // ReSharper disable once Unity.PerformanceCriticalCodeInvocation
+//            Debug.Log("Clip overwritten!");
+//        }
+//        if (positionDiff > 0)
+//        {
+//            var samples = new float[positionDiff * MicrophoneClip.channels];
+//            MicrophoneClip.GetData(samples, LastPosition);
+//            var audioMessage = DecodedMessage.AudioDataMessage(samples);
+//            MasterInstructor.InstructorServer.SendMessageToClient(audioMessage);
+//        }
+//        LastPosition = newPosition;
         MasterInstructor.InstructorServer.SendMessageToClient(trackingMessage);
         HistoryTimestamps.Clear();
         HistoryPositions.Clear();
@@ -78,6 +78,6 @@ public class DataRecorder: MonoBehaviour
     {
         Recording = false;
         SendData();
-        Microphone.End(null);
+//        Microphone.End(null);
     }
 }
