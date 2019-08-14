@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public enum MessageType
@@ -149,10 +150,12 @@ public class DecodedMessage
     public static DecodedMessage AudioDataMessage(float[] audio)
     {
         const MessageType messageType = MessageType.AudioData;
+        var audioBytes = new byte[audio.Length * sizeof(float)];
+        Buffer.BlockCopy(audio, 0, audioBytes, 0, audioBytes.Length);
         var content = new AudioDataContent
         {
             Timestamp = InstructorUtils.CurrentTimestamp(),
-            DataAudio = audio
+            DataAudioString = Convert.ToBase64String(audioBytes)
         };
         return new DecodedMessage {MessageType = messageType, Content = content};
     }
@@ -190,7 +193,7 @@ public class TrackingDataContent
 public class AudioDataContent
 {
     public double Timestamp;
-    public float[] DataAudio;
+    public string DataAudioString;
 }
 
 public class StopContent
