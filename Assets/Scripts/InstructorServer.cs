@@ -76,7 +76,7 @@ public class InstructorServer : MonoBehaviour
                                 try
                                 {
                                     var clientMessage = DecodedMessage.FromJsonString(clientTextMessage);
-                                    ReceivedMessageQueue.Enqueue(clientMessage);
+                                    lock (ReceivedMessageQueue) ReceivedMessageQueue.Enqueue(clientMessage);
                                 }
                                 catch (ArgumentException e)
                                 {
@@ -97,7 +97,7 @@ public class InstructorServer : MonoBehaviour
                     Debug.Log("Other exception: " + e);
                     _connectedTcpClient = null;
                 }
-                ReceivedMessageQueue.Enqueue(DecodedMessage.StopMessage(-1));
+                lock (ReceivedMessageQueue) ReceivedMessageQueue.Enqueue(DecodedMessage.StopMessage(-1));
             }
         }
         catch (SocketException socketException)
@@ -154,10 +154,13 @@ public class InstructorServer : MonoBehaviour
 
     public void Update()
     {
-        while (ReceivedMessageQueue.Count != 0)
+        lock (ReceivedMessageQueue)
         {
-            var lastMessage = ReceivedMessageQueue.Dequeue();
-            MasterInstructor.HandleCommand(lastMessage);
+            while (ReceivedMessageQueue.Count != 0)
+            {
+                var lastMessage = ReceivedMessageQueue.Dequeue();
+                MasterInstructor.HandleCommand(lastMessage);
+            }
         }
     }
 
